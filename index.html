@@ -88,7 +88,7 @@
 
 <script type="module">
     // --------------------------------------------------------
-    // จุดที่ 1: วางค่า Firebase Config ตรงนี้
+    // จุดที่ 1: วางค่า Firebase Config ตรงนี้ (อย่าลืมแก้!)
     // --------------------------------------------------------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
@@ -109,10 +109,11 @@
     const storage = getStorage(app);
 
     // --------------------------------------------------------
-    // จุดที่ 2: LIFF ID ของคุณ
+    // จุดที่ 2: LIFF ID
     // --------------------------------------------------------
     const LIFF_ID = "2008683058-YWdMpYWG"; 
 
+    // เริ่มการทำงาน
     async function main() {
         await liff.init({ liffId: LIFF_ID });
         if (liff.isLoggedIn()) {
@@ -126,6 +127,7 @@
     }
     main();
 
+    // แสดงตัวอย่างรูป
     document.getElementById('imageInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -139,10 +141,12 @@
         }
     });
 
+    // ส่งข้อมูล
     document.getElementById('reportForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = document.querySelector('button[type="submit"]');
         const loadingDiv = document.getElementById('loading');
+        
         submitBtn.disabled = true;
         submitBtn.style.display = 'none';
         loadingDiv.style.display = 'block';
@@ -174,6 +178,7 @@
 
             alert("✅ ส่งรายงานเรียบร้อยครับ!");
             liff.closeWindow();
+
         } catch (error) {
             console.error("Error:", error);
             alert("❌ เกิดข้อผิดพลาด: " + error.message);
