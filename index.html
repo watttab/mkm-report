@@ -10,7 +10,7 @@
         body { background-color: #f8f9fa; font-family: 'Sarabun', sans-serif; }
         .container { max-width: 600px; padding-top: 20px; padding-bottom: 40px; }
         .card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn-primary { background-color: #00B900; border: none; } /* สีเขียว LINE */
+        .btn-primary { background-color: #00B900; border: none; }
         .btn-primary:hover { background-color: #009900; }
         .loading { display: none; text-align: center; margin-top: 20px; }
         .preview-img { max-width: 100%; margin-top: 10px; border-radius: 10px; display: none; }
@@ -95,14 +95,13 @@
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
     const firebaseConfig = {
-        // --- เอาโค้ดจาก Firebase Console มาแปะทับตรงนี้ ---
-        apiKey: "AIzaSyD...",
+        // --- ใส่ค่า Config ของคุณตรงนี้ ---
+        apiKey: "AIzaSyD...", 
         authDomain: "skr-mkm-pr.firebaseapp.com",
         projectId: "skr-mkm-pr",
         storageBucket: "skr-mkm-pr.appspot.com",
         messagingSenderId: "...",
         appId: "..."
-        // --------------------------------------------------
     };
 
     const app = initializeApp(firebaseConfig);
@@ -114,16 +113,9 @@
     // --------------------------------------------------------
     const LIFF_ID = "2008683058-YWdMpYWG"; 
 
-    // เริ่มต้นทำงาน
     async function main() {
         await liff.init({ liffId: LIFF_ID });
-        
         if (liff.isLoggedIn()) {
-            const profile = await liff.getProfile();
-            // ถ้าอยากดึงชื่อไลน์มาใส่ช่องชื่อผู้รายงานอัตโนมัติ ให้เปิดบรรทัดล่างนี้
-            // document.getElementById('reporterName').value = profile.displayName;
-            
-            // จำค่าอำเภอล่าสุด (ถ้าเคยเลือกไว้)
             const savedDistrict = localStorage.getItem('lastDistrict');
             if (savedDistrict) {
                 document.getElementById('district').value = savedDistrict;
@@ -134,7 +126,6 @@
     }
     main();
 
-    // แสดงตัวอย่างรูปภาพ
     document.getElementById('imageInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -148,19 +139,15 @@
         }
     });
 
-    // เมื่อกดส่งฟอร์ม
     document.getElementById('reportForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         const submitBtn = document.querySelector('button[type="submit"]');
         const loadingDiv = document.getElementById('loading');
-        
         submitBtn.disabled = true;
         submitBtn.style.display = 'none';
         loadingDiv.style.display = 'block';
 
         try {
-            // 1. เตรียมข้อมูล
             const district = document.getElementById('district').value;
             const reporterName = document.getElementById('reporterName').value;
             const topic = document.getElementById('topic').value;
@@ -168,16 +155,12 @@
             const fbLink = document.getElementById('fbLink').value;
             const imageFile = document.getElementById('imageInput').files[0];
 
-            // บันทึกอำเภอล่าสุดไว้ใช้คราวหน้า
             localStorage.setItem('lastDistrict', district);
 
-            // 2. อัปโหลดรูป (ย่อรูปก่อนส่ง - เพื่อประหยัดพื้นที่)
-            // *ในโค้ดนี้ขอทำแบบส่งปกติก่อนเพื่อให้โค้ดสั้น*
             const storageRef = ref(storage, 'news/' + Date.now() + '_' + imageFile.name);
             await uploadBytes(storageRef, imageFile);
             const imageUrl = await getDownloadURL(storageRef);
 
-            // 3. บันทึกลง Firestore
             await addDoc(collection(db, "reports"), {
                 district: district,
                 reporter_name: reporterName,
@@ -185,13 +168,12 @@
                 category: category,
                 fb_link: fbLink,
                 image_url: imageUrl,
-                timestamp: serverTimestamp(), // เวลาเซิร์ฟเวอร์ (สำคัญมากสำหรับการนับสถิติ)
-                month_key: new Date().toISOString().slice(0, 7) // เช่น 2025-12 (ช่วยให้ดึงรายงานรายเดือนง่าย)
+                timestamp: serverTimestamp(),
+                month_key: new Date().toISOString().slice(0, 7)
             });
 
             alert("✅ ส่งรายงานเรียบร้อยครับ!");
-            liff.closeWindow(); // ปิดหน้าจออัตโนมัติ
-
+            liff.closeWindow();
         } catch (error) {
             console.error("Error:", error);
             alert("❌ เกิดข้อผิดพลาด: " + error.message);
